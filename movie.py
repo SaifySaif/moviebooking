@@ -1,67 +1,105 @@
-from datetime import datetime
+from datetime import datetime #used to print current time at line 241
 
-users = {}
+users = {"employee1": {"pass":"emppass1", "status":"emp","date_of_join" : "2023-01-01", "experience": "2 years"},
+         "employee2": {"pass":"emppass2", "status":"emp","date_of_join" : "2024-01-01", "experience": "2 years"},
+         "admin1": {"pass":"adminpass1", "status":"admin", "date_of_join":"2023-02-2","experience" : "1 year"}, "dave":{"pass":"yo","status":"noob"},
+         "admin2": {"pass":"adminpass2", "status":"admin", "date_of_join":"2024-02-2","experience" : "1 year"},
+         "user1": {"pass":"userpass1","status":"user"},
+         "user2": {"pass":"userpass2","status":"user"}} #database of users
 
 movies = [
     {"title": "Peter Jonsson", "genre": "Action", "director": "Muge"},
     {"title": "Perry Park", "genre": "physiological", "director": "Cha Min Lee"},
-    {"title": "Jungle novel", "genre": "Family drama", "director": "Liam candy"},
-    {"title": "Kasmiri", "genre": "Action", "director": "Kunal Rathum"},
-    {"title": "la la place", "genre": "Romance", "director": "Luthe Mathew"},
-    {"title": "Yesterday land", "genre": "Science Fiction", "director": "Newtfreeman"},
-    {"title": "Die another day", "genre": "Action", "director": "Rodrick Mason"},
-    {"title": "Noona", "genre": "Family drama", "director": "Dong Wook Soon"},
-    {"title": "School for evil and evil", "genre": "Fantasy", "director": "Alexa Cooper"},
-    {"title": "The Sign Board", "genre": "Romance", "director": "Roberts"},
-    {"title": "Villain's need to live", "genre": "Family drama", "director": "Magpie Rami"},
-    {"title": "The Summer Day", "genre": "Romance", "director": "Liam candy"},
-    {"title": "Fresh Princess", "genre": "slice of life", "director": "Landon gremecK"},
-    {"title": "Go behind", "genre": "Family drama", "director": "Mingy"},
-    {"title": "I met a ghost", "genre": "Horror", "director": "Arnold Williams"},
-    {"title": "How I died", "genre": "Horror", "director": "Sirighost"},
-    {"title": "Love in a nutshell", "genre": "Romance", "director": "Manny Quinn"},
-    {"title": "The great awakening", "genre": "Dystopian", "director": "Chris Peacock"},
-    {"title": "The last day of living", "genre": "Tragedy", "director": "Emma Roids"},
-    {"title": "Goodbye, John", "genre": "Family drama", "director": "Seymour Cox"},
-    {"title": "Love and mercy", "genre": "Dark comedy", "director": "Krystal Ball"},
-]
+] #database of movies
 
-seats_available = [1000, 1500, 1200, 1700, 1100, 1500, 1400, 1500, 1200, 1400, 1900, 1200, 1000, 1400, 1300, 1800, 1100,
-                   1900, 1100, 1000, 1400]
+seats_available = [1000, 1500] #database of seats available for the respective movies
 
 food_menu = {
     "1": {"item": "Popcorn", "price": 5},
     "2": {"item": "Soda", "price": 3},
-    "3": {"item": "Burger", "price": 7},
-    "4": {"item": "Burger", "price": 7},
-    "5": {"item": "Nachos", "price": 8},
-    "6": {"item": "Wrap", "price": 5},
-    "7": {"item": "Ice Cream", "price": 4},
-    "8": {"item": "Cotton Candy", "price": 4},
-    "9": {"item": "French Fries", "price": 5},
-    "10": {"item": "Sweet corn", "price": 3},
-}
+} #database for the foods sold at the movies
 
-movie_times = ["9am", "12pm", "3pm", "6pm", "9pm", "12am"]
-
-# Initialize food_cost as a global variable
-food_cost = 0
-
-def login():
-    username = input("Enter your username: ")
-    password = input("Enter your password: ")
-
-    if username in users and password == users[username]:
-        print("Login successful!")
-    else:
-        print("Invalid username or password. Please register.")
-        register()
+bookings = {"user1":[{"booking1":"","title":"Peter Jonsson", "number of tickets":1, "venue":"Falter","time":"12 AM", "food":""},
+                      {"booking2":"","title":"Perry Park", "number of tickets":1, "venue":"Falter","time":"12 AM", "food":""}]} #database of obokings
 
 def register():
     username = input("Enter your new username: ")
     password = input("Enter your new password: ")
     users[username] = password
     print("Registration successful!")
+
+def employee_menu():
+    print("Welcome, employee!")
+    while True:
+        print("─" * 90)
+        print("1. View All Bookings")
+        print("2. Manage Movies")
+        print("3. Log Out")
+        print("─" * 90)
+        choice = input("Enter your choice (1-3): ")
+        if choice == "1":
+            view_all_bookings()
+        elif choice == "2":
+            manage_movies()
+        elif choice == "3":
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+def view_all_bookings():
+    print(bookings)
+
+def manage_movies():
+    while True:
+        print("─" * 90)
+        print("1. Add Movie")
+        print("2. Remove Movie")
+        print("3. Update Movie")
+        print("4. View Movies")
+        print("5. Go Back")
+        print("─" * 90)
+        choice = input("Enter your choice (1-5): ")
+        if choice == "1":
+            add_movie()
+        elif choice == "2":
+            remove_movie()
+        elif choice == "3":
+            update_movie()
+        elif choice == "4":
+            display_movies()
+        elif choice == "5":
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+def add_movie():
+    title = input("Enter movie title: ")
+    genre = input("Enter movie genre: ")
+    director = input("Enter movie director: ")
+    movies.append({"title": title, "genre": genre, "director": director})
+    seats_available.append(100)  # Default seat count
+    print("Movie added successfully.")
+
+def remove_movie():
+    display_movies()
+    movie_index = int(input("Enter the movie number to remove: ")) - 1
+    if 0 <= movie_index < len(movies):
+        removed_movie = movies.pop(movie_index)
+        print(f"Removed movie: {removed_movie['title']} and seats {seats_available.pop(movie_index)} for the respective movie")
+    else:
+        print("Invalid movie selection.")
+
+def update_movie():
+    display_movies()
+    movie_index = int(input("Enter the movie number to update: ")) - 1
+    if 0 <= movie_index < len(movies):
+        title = input("Enter new movie title: ")
+        genre = input("Enter new movie genre: ")
+        director = input("Enter new movie director: ")
+        movies[movie_index] = {"title": title, "genre": genre, "director": director}
+        print("Movie updated successfully.")
+    else:
+        print("Invalid movie selection.")
 
 def display_movies():
     print("─" * 90)
@@ -72,216 +110,249 @@ def display_movies():
         print(f"Seats Available: {seats_available[i]}")
         print("─" * 90)
 
-def book_tickets(movie_index, num_tickets):
-    if movie_index < 0 or movie_index >= len(movies):
-        print("Invalid movie selection.")
-        print()
-        return
-
-    if num_tickets <= 0:
-        print("Number of tickets should be greater than zero.")
-        print()
-        return
-
-    if num_tickets > seats_available[movie_index]:
-        print("Not enough seats available.")
-        print()
-        return
-
-    print("─" * 90)
-    print("Available venues:")
-    movie_venue = {1: "Falter", 2: "Aescamyr", 3: "Enia", 4: "Tintagel", 5: "Lingen", 6: "Elmbow", 7: "Guildingston"}
-    for i in range(1, 8):
-        print(i, ":", movie_venue[i])
-    venue = int(input("Enter the number of the desired venue: "))
-    venue_user = movie_venue[venue]
-    if venue not in range(1, 8):
-        print("Invalid venue selection.")
-        print()
-        return
-
-    print("─" * 90)
-
-    seats_available[movie_index] -= num_tickets
-
-    print("Available movie times:")
-    for i, time in enumerate(movie_times, start=1):
-        print(f"{i}. {time}")
-
-    time_choice = int(input("Enter the number of the desired movie time: "))
-    if time_choice < 1 or time_choice > len(movie_times):
-        print("Invalid time selection.")
-        print()
-        return
-    print("─" * 90)
-
-    chosen_time = movie_times[time_choice - 1]
-    date_time_str = input(f"Enter the date and time (DD-MM-YYYY {chosen_time}): ")
-    date_time_str = f"{date_time_str} {chosen_time}"
-
-    try:
-        date_time = datetime.strptime(date_time_str, "%d-%m-%Y %I%p")
-    except ValueError:
-        print("Invalid date and time format. Please enter a valid date and time.")
-        return
-
-    print("─" * 90)
-    print(f"Successfully booked {num_tickets} ticket(s) for {movies[movie_index]['title']} at venue {venue_user} on {date_time}!")
-
-    print("─" * 90)
-    order_food = input("Would you like to order food? (yes/no): ").lower()
-    if order_food == "yes":
-        display_food_menu()
-        order_food_items(num_tickets)
-    elif order_food == "no":
-        print("No food ordered.")
-    else:
-        print("Invalid response. Please enter 'yes' or 'no'.")
-    print("─" * 90)
-
-    proceed_to_billing = input("Would you like to proceed to billing? (yes/no): ")
-    if proceed_to_billing.lower() == "yes":
-        calculate_and_display_bill(num_tickets, date_time, venue_user)
-
-    print()
-
-def display_food_menu():
-    print("─" * 90)
-    print("Food Menu:")
-    for key, item in food_menu.items():
-        print(f"{key}. {item['item']} - ${item['price']}")
-    print("─" * 90)
-
-def order_food_items(num_tickets):
-    total_cost = 0
-    global food_cost
+def admin_menu():
     while True:
-        item_choice = input("Enter the number of the food item you want to order (press 'q' to quit): ")
-        if item_choice.lower() == 'q':
+        print("─" * 90)
+        print("1. View all employee details")
+        print("2. Add or edit employee details")
+        print("3. Delete Employee")
+        print("4. Log Out")
+        print("─" * 90)
+        choice = input("Enter your choice (1-5): ")
+        if choice == "1":
+            view_all_employees()
+        elif choice == "2":
+            add_edit_employee()
+        elif choice == "3":
+            delete_employee()
+        elif choice == "4":
             break
-        elif item_choice in food_menu:
-            quantity = int(input("Enter the quantity: "))
-            total_cost += food_menu[item_choice]['price'] * quantity
         else:
             print("Invalid choice. Please try again.")
-    food_cost = total_cost  # Assign total_cost to food_cost
 
-    print(f"Total cost for food: ${total_cost}")
+def view_all_employees():
+    for username in users:
+        if users[username]["status"] == "emp":
+            print("\nusername is",username)
+            print("date of joining is", users[username]["date_of_join"])
+            print("experience is", users[username]["experience"])
 
-def create_bill(movie_title, num_tickets, ticket_cost, food_cost, total_cost, contact_info, credit_card_number, venue, date_time):
-    current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+def add_edit_employee():
+    username = input("Enter new username(if username is already present in database, the details of that username will get changed to the ones you will put.): ")
+    password = input("enter new password: ")
+    date_of_join = input("Enter new date of join (YYYY-MM-DD): ")
+    experience = input("Enter new experience (e.g., 2 years): ")
 
-    print("\n" + "-" * 90)
-    print("======= Receipt =======")
-    print(f"Today's Date and Time: {current_datetime}")
-    print(f"Date and Time: {date_time}")
-    print(f"Venue: {venue}")
-    print(f"Movie: {movie_title}")
-    print(f"Number of Tickets: {num_tickets}")
-    print(f"Ticket Cost: ${ticket_cost}")
-    print(f"Food Cost: ${food_cost}")
-    print(f"Total Cost: ${total_cost}")
-    print("=======================")
-    print("Contact Information: ", contact_info)
-    print("Credit Card Number: ", credit_card_number)
-    print("=======================")
+    users[username] = {"pass":password,"status":"emp","date_of_join":date_of_join,"experience":experience}
 
-def calculate_and_display_bill(num_tickets, date_time, venue_user):
-    ticket_cost = num_tickets * 10
-    total_cost = ticket_cost + food_cost
+    print("Employee added successfully.")
 
-    print(f"Successfully booked {num_tickets} ticket(s) for {movies[movie_index]['title']} at venue {venue_user} on {date_time}!")
-    print(f"Total cost for tickets: ${ticket_cost}")
-    print(f"Total cost for food: ${food_cost}")
-    print(f"Grand Total: ${total_cost}")
+def delete_employee():
+    username = input("Enter username of the employee to delete: ")
+    try:
+        users.pop(username)
+    except:
+        print(username,"not present in database")
 
-    print("─" * 90)
+def user_menu():
     while True:
-        contact_info = input("Enter your mobile number (10 digits): ")
-
-        if len(contact_info) != 10 or not contact_info.isdigit():
-            print("Invalid mobile number. Please enter a 10-digit numeric mobile number.")
-        else:
+        print("─" * 90)
+        print("1. View Movies")
+        print("2. Book Tickets")
+        print("3. View Bookings")
+        print("4. Cancel Booking")
+        print("5. Logout")
+        print("─" * 90)
+        choice = input("Enter your choice (1-5): ")
+        if choice == "1":
+            display_movies()
+        elif choice == "2":
+            book_tickets()
+        elif choice == "3":
+            view_user_bookings()
+        elif choice == "4":
+            cancel_booking()
+        elif choice == "5":
+            print("Logged out successfully.")
             break
-
-    while True:
-        user_otp = input("Enter the OTP received (4 digits): ")
-
-        if len(user_otp) != 4 or not user_otp.isdigit():
-            print("Invalid OTP. Please enter a 4-digit numeric OTP.")
         else:
-            print("OTP verification successful.")
+            print("Invalid choice. Please try again.")
+
+def book_tickets():
+    while True: #gets movie index for the movie you want to book
+        try:
+            display_movies()
+            try:
+                movie_index = int(input("Enter the movie number to book tickets for: ")) - 1 #gives index of element (element is a dictionary, containing info about movie) in 'movies' variable
+            except:
+                print("type a number eg: 1 for 1st movie\n\n")
+                continue
+            if movie_index < 0 or movie_index >= len(movies): #if movie_index is negative or greater than max index present in movies variable, it raises an exception
+                print("Invalid movie selection. Out of bounds.\n\n")
+                raise Exception
+            break
+        except:
+            continue
+    while True: #gets number of tickets you want to book
+        try:
+            try:
+                num_tickets = int(input("Enter the number of tickets to book: "))
+            except:
+                print("type a number (eg: 1 for 1 ticket) \n\n")
+                continue
+
+            if num_tickets <= 0: #if num_tickets is negative, it raises exception
+                print("Number of tickets should be greater than zero.\n\n")
+                raise Exception
+            if num_tickets > seats_available[movie_index]: #if num_tickets > available seats for the movie, it raises exception
+                print("Not enough seats available.\n\n")
+                raise Exception
+            break
+        except:
+            continue
+    while True: #gets venue you want to book
+        try:
             print("─" * 90)
+            print("Available venues:")
+            movie_venue = {1: "Falter", 2: "Aescamyr", 3: "Enia", 4: "Tintagel", 5: "Lingen", 6: "Elmbow", 7: "Guildingston"}
+            for i in range(1, 8):#prints items in movie_venu dictionary
+                print(i, ":", movie_venue[i])
+            try:
+                venue = int(input("Enter the number of the desired venue: "))
+            except:
+                print("type a number eg: 1 for  Falter")
+                continue
+            venue_user = movie_venue.get(venue)
+            if not venue_user: #if venue is not present in movie_venue, then movie_venue.get(venue) returns none, this none gets stored in venue_user. This is if block is checking if venue user is none
+                print("Invalid venue selection.\n\n")
+                raise Exception
+            print("─" * 90)            
+            
             break
+        except:
+            continue
 
+    curtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S") #stores current time %Y stands for Year, full version. eg: 2018, %m stands for Month as a number 01-12. eg:20, %d stands for day of the month 01-31. eg: 31, %H stands for Hour 00-23. eg:17,%M stands for minute 00-59. eg: 41, %S stands for second 00-59. eg: 08
+    booking_num = 1
+    for x in bookings[username]:
+        booking_num = booking_num + 1
+    bookings[username].append({'booking' + str(booking_num):'','title':movies[movie_index],'number of tickets':num_tickets,'venue':venue_user,'food':{}})
+    food_cost = 0
     print("─" * 90)
+
+    print("─"*90)
+    print("Food Menu")
+    print("─" * 90)
+    for key, item in food_menu.items():
+        print(f"{key}. {item['item']} - ${item['price']}")
     while True:
-        credit_card_number = input("Enter your credit card number (16 digits): ")
+        try:
+            order_food = input("Would you like to order food or finish booking? (yes/no): ").lower()
+            if order_food == "yes":
+                choice = input("Enter the item number to order or 'done' to finish: ")
+                if choice in food_menu:
+                    try:
+                        quantity = int(input("Enter the quantity: "))
+                    except:
+                        print("type a number")
+                    if quantity < 0:
+                        print("quantity cannot be less than 0")
+                        raise Exception
+                    elif quantity > 1000:
+                        print("we can't serve that much")
+                        raise Exception
+                    food_cost += food_menu[choice]['price'] * quantity
 
-        if len(credit_card_number) != 16 or not credit_card_number.isdigit():
-            print("Invalid credit card number. Please enter a 16-digit numeric credit card number.")
-        else:
-            break
+                    for x in bookings[username]:
+                        if 'booking' + str(booking_num) in x:     
+                            bookings[username][bookings[username].index(x)].update({'food':{food_menu[choice]['item']:quantity}})
 
+                elif choice == "done":
+                    break
+                else:
+                    print("Invalid item number. Please try again.")
+            elif order_food == "no":
+                print("No food ordered.")
+                break
+            else:
+                print("Invalid response. Please enter 'yes' or 'no'.\n\n")
+                raise Exception
+        except:
+            continue
     while True:
-        credit_card_pin = input("Enter your credit card pin (3 digits): ")
-
-        if len(credit_card_pin) != 3 or not credit_card_pin.isdigit():
-            print("Invalid credit card PIN. Please enter a 3-digit numeric credit card PIN.")
-        else:
+        try:
+            print("─" * 90)
+            proceed_to_billing = input("Would you like to continue booking this ticket?: ").lower()
+            if proceed_to_billing == "yes":
+                seats_available[movie_index] -= num_tickets #removes the booked seats from available seats
+                print("─" * 90)
+                print("Billing Details")
+                print("─" * 90)
+                print(f"Number of tickets: {num_tickets}")
+                print(f"Ticket Cost: ${num_tickets * 10}")
+                print(f"Food Cost: ${food_cost}")
+                total_cost = num_tickets * 10 + food_cost
+                print(f"Total Cost: ${total_cost}")
+                print("Thank you for booking with WYDEOS!")
+                print("─" * 90)
+            elif proceed_to_billing == "no":
+                print("ticket canceled.")
+            else:
+                print("Invalid response. Please enter 'yes' or 'no'.\n\n")
+                raise Exception
             break
+        except:
+            continue
 
-    print("─" * 90)
+def view_user_bookings():
+    print(bookings[username])
+            
+def cancel_booking():
+    cancel_booking_num = input("enter the booking number which you want to cancel: ")
+    for i in bookings[username]:
+        if 'booking' + str(cancel_booking_num) in i:
+            index_of_i = bookings[username].index(i)
+    print(bookings[username].pop(index_of_i),"was removed")
 
-    create_bill(
-        movies[movie_index]['title'],
-        num_tickets,
-        ticket_cost,
-        food_cost,
-        total_cost,
-        contact_info,
-        credit_card_number,
-        venue_user,
-        date_time
-    )
+class statuserror(Exception):
+    pass
+class loginerror(Exception):
+    pass
+def login():
+    global username
+    global password
+    while True:
+        try:
+            username = input("Enter your username: ")
+            password = input("Enter your password: ")
 
-    print("Billing Details:")
-    print(f"Contact Information: {contact_info}")
-    print(f"Credit Card Number: {credit_card_number}")
-    print(f"Total Amount: ${total_cost}")
+            if username in users and password == users[username]["pass"]:
+                print("\nUsername and password present in database.")   
+            else:
+                raise loginerror
 
-    print("─" * 90)
-    confirmation = input("Confirm and complete the transaction? (yes/no): ")
-    if confirmation.lower() == "yes":
-        print("Transaction completed. You will receive a confirmation message.")
-        print("Thank you for using the Movie Booking Website!")
-    else:
-        print("Transaction canceled.")
-    print("─" * 90)
+            if "status" not in users[username].keys():
+                raise statuserror
+            elif users[username]["status"] == "admin":
+                admin_menu()
+            elif users[username]["status"] == "emp":
+                employee_menu()
+            elif users[username]["status"] == "user":
+                user_menu()
 
-print("─" * 90)
-print("Welcome to the WYDEOS! A movie booking website")
-while True:
-    print("─" * 90)
-    print("1. Register")
-    print("2. Login")
-    print("3. Book Tickets")
-    print("4. Exit")
-    print("─" * 90)
+            else:
+                raise statuserror
+        except statuserror:
+            print("You're status in the database has not been set to employee or admin. File a complaint with this error to IT to get this issue sorted.")
+        except loginerror:
+            print("invalid username or password")
 
-    choice = input("Enter your choice (1-4): ")
+login()
 
-    if choice == "1":
-        register()
-    elif choice == "2":
-        login()
-    elif choice == "3":
-        display_movies()
-        movie_index = int(input("Enter the movie number: ")) - 1
-        num_tickets = int(input("Enter the number of tickets to book: "))
-        book_tickets(movie_index, num_tickets)
-    elif choice == "4":
-        print("Thank you for using the Movie Booking Website!")
-        break
-    else:
-        print("Invalid choice. Please try again.")
+import mysql.connector as m
+con = m.connect(host = "local host",user="root",password="@Te3{oHgq$#B|h~pm[",database = "movies")
+if con.is_connected:
+    print("successful")
+else:
+    print("not connected")
+
