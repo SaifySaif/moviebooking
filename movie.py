@@ -1,5 +1,10 @@
 from datetime import datetime #used to print current time at line 241
-
+import mysql.connector as m
+con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[",database = "movies")
+if con.is_connected:
+    print("successful")
+else:
+    print("not connected")
 users = {"employee1": {"pass":"emppass1", "status":"emp","date_of_join" : "2023-01-01", "experience": "2 years"},
          "employee2": {"pass":"emppass2", "status":"emp","date_of_join" : "2024-01-01", "experience": "2 years"},
          "admin1": {"pass":"adminpass1", "status":"admin", "date_of_join":"2023-02-2","experience" : "1 year"}, "dave":{"pass":"yo","status":"noob"},
@@ -20,7 +25,8 @@ food_menu = {
 } #database for the foods sold at the movies
 
 bookings = {"user1":[{"booking1":"","title":"Peter Jonsson", "number of tickets":1, "venue":"Falter","time":"12 AM", "food":""},
-                      {"booking2":"","title":"Perry Park", "number of tickets":1, "venue":"Falter","time":"12 AM", "food":""}]} #database of obokings
+                      {"booking2":"","title":"Perry Park", "number of tickets":1, "venue":"Falter","time":"12 AM", "food":""}],
+            "user2":[]} #database of obokings
 
 def register():
     username = input("Enter your new username: ")
@@ -247,7 +253,7 @@ def book_tickets():
         print(f"{key}. {item['item']} - ${item['price']}")
     while True:
         try:
-            order_food = input("Would you like to order food or finish booking? (yes/no): ").lower()
+            order_food = input("Would you like to order food or finish ordering? (yes/no): ").lower()
             if order_food == "yes":
                 choice = input("Enter the item number to order or 'done' to finish: ")
                 if choice in food_menu:
@@ -282,7 +288,7 @@ def book_tickets():
     while True:
         try:
             print("─" * 90)
-            proceed_to_billing = input("Would you like to continue booking this ticket?: ").lower()
+            proceed_to_billing = input("Would you like to continue booking this ticket? (yes/no): ").lower()
             if proceed_to_billing == "yes":
                 seats_available[movie_index] -= num_tickets #removes the booked seats from available seats
                 print("─" * 90)
@@ -308,12 +314,14 @@ def view_user_bookings():
     print(bookings[username])
             
 def cancel_booking():
-    cancel_booking_num = input("enter the booking number which you want to cancel: ")
-    for i in bookings[username]:
-        if 'booking' + str(cancel_booking_num) in i:
-            index_of_i = bookings[username].index(i)
-    print(bookings[username].pop(index_of_i),"was removed")
-
+    try:
+        cancel_booking_num = input("enter the booking number which you want to cancel: ")
+        for i in bookings[username]:
+            if 'booking' + str(cancel_booking_num) in i:
+                index_of_i = bookings[username].index(i)
+        print(bookings[username].pop(index_of_i),"was removed")
+    except:
+        print("booking number not found")
 class statuserror(Exception):
     pass
 class loginerror(Exception):
@@ -347,12 +355,39 @@ def login():
         except loginerror:
             print("invalid username or password")
 
+class password_mismatch_error(Exception):
+    pass
+
+def register():
+    while True:
+        try:
+            choice = input("do you want to register as user yes or no?: ")
+            if choice == "yes":
+                newusername = input("enter new username: ")
+                if newusername in users:
+                    print("username already present in database")
+                    continue
+                newpassword = input("enter new password: ")
+                confirmnewpassword = input("confirm your password: ")
+                bookings[newusername] = []
+                if confirmnewpassword != newpassword:
+                    raise password_mismatch_error
+                users[newusername] = {"pass":newpassword,"status":"user"}
+                break
+            elif choice == "no":
+                break
+            else:
+                raise loginerror
+        except loginerror:
+            print("please type yes or no")
+            continue
+        except password_mismatch_error:
+            print("passwords do not match")
+            continue
+
+
+register()
 login()
 
-import mysql.connector as m
-con = m.connect(host = "local host",user="root",password="@Te3{oHgq$#B|h~pm[",database = "movies")
-if con.is_connected:
-    print("successful")
-else:
-    print("not connected")
+
 
