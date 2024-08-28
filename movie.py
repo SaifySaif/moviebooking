@@ -1,6 +1,6 @@
 from datetime import datetime #used to print current time at line 241
 import mysql.connector as m
-con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[",database = "movies")
+con = m.connect(host = "localhost",user="root",password="passtobeentered",database = "movies")
 if con.is_connected:
     print("successful")
 else:
