@@ -1,10 +1,5 @@
 from datetime import datetime #used to print current time at line 241
-import mysql.connector as m
-con = m.connect(host = "localhost",user="root",password="passtobeentered",database = "movies")
-if con.is_connected:
-    print("successful")
-else:
-    print("not connected")
+
 users = {"employee1": {"pass":"emppass1", "status":"emp","date_of_join" : "2023-01-01", "experience": "2 years"},
          "employee2": {"pass":"emppass2", "status":"emp","date_of_join" : "2024-01-01", "experience": "2 years"},
          "admin1": {"pass":"adminpass1", "status":"admin", "date_of_join":"2023-02-2","experience" : "1 year"}, "dave":{"pass":"yo","status":"noob"},
@@ -28,11 +23,7 @@ bookings = {"user1":[{"booking1":"","title":"Peter Jonsson", "number of tickets"
                       {"booking2":"","title":"Perry Park", "number of tickets":1, "venue":"Falter","time":"12 AM", "food":""}],
             "user2":[]} #database of obokings
 
-def register():
-    username = input("Enter your new username: ")
-    password = input("Enter your new password: ")
-    users[username] = password
-    print("Registration successful!")
+
 
 def employee_menu():
     print("Welcome, employee!")
@@ -373,6 +364,7 @@ def register():
                 if confirmnewpassword != newpassword:
                     raise password_mismatch_error
                 users[newusername] = {"pass":newpassword,"status":"user"}
+                print("sucessfully registered!")
                 break
             elif choice == "no":
                 break
