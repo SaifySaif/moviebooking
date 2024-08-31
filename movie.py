@@ -23,8 +23,6 @@ bookings = {"user1":[{"booking1":"","title":"Peter Jonsson", "number of tickets"
                       {"booking2":"","title":"Perry Park", "number of tickets":1, "venue":"Falter","time":"12 AM", "food":""}],
             "user2":[]} #database of obokings
 
-
-
 def employee_menu():
     print("Welcome, employee!")
     while True:
