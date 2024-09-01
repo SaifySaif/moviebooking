@@ -1,38 +1,48 @@
-from datetime import datetime #used to print current time at line 241
+import datetime #used to print current time at line 241
 import mysql.connector as m
-con = m.connect(host = "localhost",user="root",password="passtobeentered",database = "movies")
+db = "movies" #name of database
+food_menu = "food_menu" #name of table containing food menu
+users = "users" #name of table containing users
+movies = "movies" #name of table containing movies
+bookings = "bookings" #name of table containg bookings
+
+con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[",database = db)
 if con.is_connected:
-    print("successful")
+    print("successfully connected")
 else:
-    print("not connected")
-users = {"employee1": {"pass":"emppass1", "status":"emp","date_of_join" : "2023-01-01", "experience": "2 years"},
-         "employee2": {"pass":"emppass2", "status":"emp","date_of_join" : "2024-01-01", "experience": "2 years"},
-         "admin1": {"pass":"adminpass1", "status":"admin", "date_of_join":"2023-02-2","experience" : "1 year"}, "dave":{"pass":"yo","status":"noob"},
-         "admin2": {"pass":"adminpass2", "status":"admin", "date_of_join":"2024-02-2","experience" : "1 year"},
-         "user1": {"pass":"userpass1","status":"user"},
-         "user2": {"pass":"userpass2","status":"user"}} #database of users
+    print("WARNING!: not connected")
 
-movies = [
-    {"title": "Peter Jonsson", "genre": "Action", "director": "Muge"},
-    {"title": "Perry Park", "genre": "physiological", "director": "Cha Min Lee"},
-] #database of movies
-
-seats_available = [1000, 1500] #database of seats available for the respective movies
-
-food_menu = {
-    "1": {"item": "Popcorn", "price": 5},
-    "2": {"item": "Soda", "price": 3},
-} #database for the foods sold at the movies
-
-bookings = {"user1":[{"booking1":"","title":"Peter Jonsson", "number of tickets":1, "venue":"Falter","time":"12 AM", "food":""},
-                      {"booking2":"","title":"Perry Park", "number of tickets":1, "venue":"Falter","time":"12 AM", "food":""}],
-            "user2":[]} #database of obokings
+mycursor = con.cursor()
 
 def register():
-    username = input("Enter your new username: ")
-    password = input("Enter your new password: ")
-    users[username] = password
-    print("Registration successful!")
+    while True:
+        username = input("Enter your new username: ")
+        if username == "quit":
+            print("quitting......")
+            break
+
+        is_user_in_db = f"select * from {users} where username =  '{username}'"
+        mycursor.execute(is_user_in_db)
+        data = mycursor.fetchall()
+        if data != []:
+            print("username taken")
+            continue
+        password = input("Enter your new password: ")
+        if password == "quit":
+            print("quitting......")
+            break
+        confirm_password = input("retype your password to confirm it: ")
+        if confirm_password == "quit":
+            print("quitting......")
+            break
+        if password != confirm_password:
+            print("passwords do no match")
+            continue
+        newuser = f"insert into {users} values('{username}','{password}','user','{None}','{None}')"
+        mycursor.execute(newuser) #executes newuser, tha
+        con.commit() #Makes sure the changes gets stored in users table. Without this line the new user information will not be permanently stored in users table.
+        print(f"Sucessfully registered {username}")
+        break
 
 def employee_menu():
     print("Welcome, employee!")
@@ -53,112 +63,261 @@ def employee_menu():
             print("Invalid choice. Please try again.")
 
 def view_all_bookings():
-    print(bookings)
+    sql = f"select * from {bookings}"
+    mycursor.execute(sql)
+    data = mycursor.fetchall()
+    print(data)
 
 def manage_movies():
     while True:
         print("─" * 90)
-        print("1. Add Movie")
-        print("2. Remove Movie")
-        print("3. Update Movie")
-        print("4. View Movies")
+        print("1. View movies")
+        print("2. Add Movies")
+        print("3. Remove Movie")
+        print("4. Update Movie")
         print("5. Go Back")
         print("─" * 90)
         choice = input("Enter your choice (1-5): ")
         if choice == "1":
-            add_movie()
-        elif choice == "2":
-            remove_movie()
-        elif choice == "3":
-            update_movie()
-        elif choice == "4":
             display_movies()
+        elif choice == "2":
+            add_movie()
+        elif choice == "3":
+            display_movies()
+            cancel(movies,'movie')
+        elif choice == "4":
+            update_movie()
         elif choice == "5":
             break
         else:
             print("Invalid choice. Please try again.")
 
-def add_movie():
-    title = input("Enter movie title: ")
-    genre = input("Enter movie genre: ")
-    director = input("Enter movie director: ")
-    movies.append({"title": title, "genre": genre, "director": director})
-    seats_available.append(100)  # Default seat count
-    print("Movie added successfully.")
-
-def remove_movie():
-    display_movies()
-    movie_index = int(input("Enter the movie number to remove: ")) - 1
-    if 0 <= movie_index < len(movies):
-        removed_movie = movies.pop(movie_index)
-        print(f"Removed movie: {removed_movie['title']} and seats {seats_available.pop(movie_index)} for the respective movie")
-    else:
-        print("Invalid movie selection.")
-
-def update_movie():
-    display_movies()
-    movie_index = int(input("Enter the movie number to update: ")) - 1
-    if 0 <= movie_index < len(movies):
-        title = input("Enter new movie title: ")
-        genre = input("Enter new movie genre: ")
-        director = input("Enter new movie director: ")
-        movies[movie_index] = {"title": title, "genre": genre, "director": director}
-        print("Movie updated successfully.")
-    else:
-        print("Invalid movie selection.")
-
 def display_movies():
     print("─" * 90)
     print("Welcome to the WYDEOS! A movie booking website")
     print("─" * 90)
-    for i, movie in enumerate(movies):
-        print(f"{i + 1}. {movie['title']} - {movie['genre']} ({movie['director']})")
-        print(f"Seats Available: {seats_available[i]}")
-        print("─" * 90)
+    count_movies = count(movies)
+    for z in range(0,count_movies):
+       sql = f"select * from {movies} having movie_index = {z+1}"
+       mycursor.execute(sql)
+       data = mycursor.fetchall()
+       print(f"{z+1}) title: {data[0][0]}, genre:{data[0][1]},director:{data[0][2]},seats_available:{data[0][3]}")
+
+def count(database):
+    sql = f"select count(*) from {database}"
+    mycursor.execute(sql)
+    data = mycursor.fetchone()[0]
+    return data
+
+def add_movie():
+    while True:
+        choice_title = input("Enter movie title: ")
+        if choice_title.lower() == "quit":
+            break
+    
+        choice_genre = input("Enter movie genre: ")
+        if choice_genre.lower() == "quit":
+            break
+
+        choice_director = input("Enter movie director: ")
+        if choice_director.lower() == "quit":
+            break
+        break
+    while True:
+        try:
+            if choice_title == "quit" or choice_genre == "quit" or choice_director == "quit":
+                break
+
+            choice_seats = input("enter number of seats available: ")
+            if choice_seats.lower() == "quit":
+                break
+            choice_seats = int(choice_seats) #sql database stores seats as int datatype in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
+        except:
+            print("Error: you did not type a number")
+            continue
+
+        choice_movie_index = count(movies) + 1
+
+        new_movie = f"insert into {movies} (title, genre, director,seats_available, movie_index) values('{choice_title}', '{choice_genre}', '{choice_director}', {choice_seats}, {choice_movie_index})"
+        mycursor.execute(new_movie)
+        con.commit()
+        print(f"Movie {choice_title} was added successfully.")
+        break
+
+def cancel(table,service,servicetype="int"):
+       while True:
+              if servicetype == "int":
+                     try:
+                            choice= input(f"Enter the {service} index to remove or type quit: ").lower()
+                            if choice == "quit":
+                                   break
+                            choice = int(choice) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
+                     except:
+                            print("Error: you did not type an integer")
+
+                     sql = f"select * from {table} where {service}_index = {choice}" 
+                     mycursor.execute(sql)
+                     data = mycursor.fetchall()
+                     if data == []:
+                            print(f"{service} index not found")
+                            continue
+                     
+                     count_value = count(table)
+              
+                     sql = f"delete from {table} where {service}_index = {choice}"
+                     mycursor.execute(sql)
+                     con.commit()
+
+                     for z in range(choice + 1,count_value + 1):
+                            sql = f"update {table} set {service}_index = {z -1} where {service}_index = {z}"
+                            mycursor.execute(sql)
+                            con.commit()
+
+                     print(f"{service} index {choice} has been removed")
+                     break
+              elif servicetype == "string":
+                    choice = input(f"enter {service} to delete: ")
+                    if choice.lower() == "quit":
+                            break
+                    is_in_db = f"select * from {table} where {service} =  '{choice}'"
+                    mycursor.execute(is_in_db)
+                    data = mycursor.fetchall()
+                    if data == []:
+                            print(f"{service} not found")
+                            continue
+                    
+                    sql = f"delete from {table} where {service} = '{choice}'"
+                    mycursor.execute(sql)
+                    con.commit()
+                    print(f"{choice} was deleted")
+                    break
+              else:
+                    print("Error: service type not found")
+
+def update_movie():
+    display_movies()
+    while True:
+        choice_movie_index = input("Enter the movie index to update: ")
+        if choice_movie_index.lower() == "quit":
+            break
+        choice_movie_index = int(choice_movie_index) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
+        choice_title = input("Enter movie title: ")
+        if choice_title.lower() == "quit":
+            break
+    
+        choice_genre = input("Enter movie genre: ")
+        if choice_genre.lower() == "quit":
+            break
+
+        choice_director = input("Enter movie director: ")
+        if choice_director.lower() == "quit":
+            break
+
+        try:
+            choice_seats = input("enter number of seats available: ")
+            if choice_seats.lower() == "quit":
+                break
+            choice_seats = int(choice_seats) #sql database stores seats as int datatype in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
+        except:
+            print("Error: you did not type a number")
+            continue
+        sql = f"update {movies} set title = '{choice_title}', genre = '{choice_genre}', director = '{choice_director}', seats_available = '{choice_seats}' where movie_index = {choice_movie_index}"
+        mycursor.execute(sql)
+        con.commit()
+        print("updated")
+        break
 
 def admin_menu():
     while True:
         print("─" * 90)
         print("1. View all employee details")
-        print("2. Add or edit employee details")
-        print("3. Delete Employee")
-        print("4. Log Out")
+        print("2. Add employee details")
+        print("3. Edit employee details")
+        print("4. Delete Employee")
+        print("5. Log Out")
         print("─" * 90)
         choice = input("Enter your choice (1-5): ")
         if choice == "1":
-            view_all_employees()
+            view_all_users()
         elif choice == "2":
-            add_edit_employee()
+            add_employee()
         elif choice == "3":
-            delete_employee()
+            edit_employee()
         elif choice == "4":
+            view_all_users()
+            cancel(users,'username','string')
+        elif choice == "5":
             break
         else:
             print("Invalid choice. Please try again.")
+            continue
 
-def view_all_employees():
-    for username in users:
-        if users[username]["status"] == "emp":
-            print("\nusername is",username)
-            print("date of joining is", users[username]["date_of_join"])
-            print("experience is", users[username]["experience"])
+def view_all_users():
+    count_users = count(users)
+    for z in range(0,count_users):
+       sql = f"select * from {users}"
+       mycursor.execute(sql)
+       data = mycursor.fetchall()
+       print(f"{z+1}) username: {data[z][0]}, pass:{data[z][1]},status:{data[z][2]},date_of_joining:{data[z][3]}, experience:{data[z][4]}")
 
-def add_edit_employee():
-    username = input("Enter new username(if username is already present in database, the details of that username will get changed to the ones you will put.): ")
-    password = input("enter new password: ")
-    date_of_join = input("Enter new date of join (YYYY-MM-DD): ")
-    experience = input("Enter new experience (e.g., 2 years): ")
+def add_employee():
+    while True:
+        choice_username = input("Enter username : ")
+        if choice_username.lower() == "quit":
+            break
 
-    users[username] = {"pass":password,"status":"emp","date_of_join":date_of_join,"experience":experience}
+        choice_password= input("Enter password: ")
+        if choice_password.lower() == "quit":
+            break
+        
+        choice_status = input("enter status: ")
+        if choice_status.lower() == "quit":
+            break
 
-    print("Employee added successfully.")
+        choice_date_of_joining= input("Enter date of join: ")
+        if choice_date_of_joining.lower() == "quit":
+            break
 
-def delete_employee():
-    username = input("Enter username of the employee to delete: ")
-    try:
-        users.pop(username)
-    except:
-        print(username,"not present in database")
+        choice_experience = input("Enter experience: ")
+        if choice_experience.lower() == "quit":
+            break
+
+        sql = f"insert into {users} (username,pass,status,date_of_joining,experience) values('{choice_username}', '{choice_password}', '{choice_status}', '{choice_date_of_joining}', '{choice_experience}')"
+        mycursor.execute(sql)
+        con.commit()
+        print(f"{choice_username} was added successfully to {users} database")
+        break
+def edit_employee():
+    while True:
+        old_username = input("enter old username: ")
+        if old_username.lower() == "quit":
+            break
+
+        choice_username = input("Enter username : ")
+        if choice_username.lower() == "quit":
+            break
+
+        choice_password= input("Enter password: ")
+        if choice_password.lower() == "quit":
+            break
+        
+        choice_status = input("enter status: ")
+        if choice_status.lower() == "quit":
+            break
+
+        choice_date_of_joining= input("Enter date of join: ")
+        if choice_date_of_joining.lower() == "quit":
+            break
+
+        choice_experience = input("Enter experience: ")
+        if choice_experience.lower() == "quit":
+            break
+
+        sql = f"update {users} set username = '{choice_username}', pass = '{choice_password}', status = '{choice_status}', date_of_joining = '{choice_date_of_joining}', experience = '{choice_date_of_joining}' where username = '{old_username}'"
+        mycursor.execute(sql)
+        con.commit()
+        print(f"{choice_username} was edited")
+        break
 
 def user_menu():
     while True:
@@ -177,7 +336,7 @@ def user_menu():
         elif choice == "3":
             view_user_bookings()
         elif choice == "4":
-            cancel_booking()
+            cancel(bookings,'booking')
         elif choice == "5":
             print("Logged out successfully.")
             break
@@ -186,207 +345,185 @@ def user_menu():
 
 def book_tickets():
     while True: #gets movie index for the movie you want to book
+        display_movies()
         try:
-            display_movies()
-            try:
-                movie_index = int(input("Enter the movie number to book tickets for: ")) - 1 #gives index of element (element is a dictionary, containing info about movie) in 'movies' variable
-            except:
-                print("type a number eg: 1 for 1st movie\n\n")
-                continue
-            if movie_index < 0 or movie_index >= len(movies): #if movie_index is negative or greater than max index present in movies variable, it raises an exception
-                print("Invalid movie selection. Out of bounds.\n\n")
-                raise Exception
-            break
+            choice_movie_index = input("Enter the movie index to book tickets for: ") 
+            if choice_movie_index == "quit":
+                break
+            choice_movie_index = int(choice_movie_index) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
         except:
+            print("type an integer eg: type 1 for 1st movie\n\n")
             continue
+        count_movies = count(movies)
+        if choice_movie_index < 0 or choice_movie_index >= count_movies:
+            print("Invalid movie selection. Out of bounds.\n\n")
+            continue
+        break
+
     while True: #gets number of tickets you want to book
-        try:
-            try:
-                num_tickets = int(input("Enter the number of tickets to book: "))
-            except:
-                print("type a number (eg: 1 for 1 ticket) \n\n")
-                continue
-
-            if num_tickets <= 0: #if num_tickets is negative, it raises exception
-                print("Number of tickets should be greater than zero.\n\n")
-                raise Exception
-            if num_tickets > seats_available[movie_index]: #if num_tickets > available seats for the movie, it raises exception
-                print("Not enough seats available.\n\n")
-                raise Exception
+        if choice_movie_index == "quit":
             break
+
+        try:
+            choice_num_tickets = input("Enter the number of tickets to book: ")
+            if choice_num_tickets == "quit":
+                break
+            choice_num_tickets = int(choice_num_tickets)
         except:
+            print("type a number (eg: 1 for 1 ticket) \n\n")
             continue
+
+        if choice_num_tickets <= 0: 
+            print("Number of tickets should be greater than zero.\n\n")
+            continue
+    
+        sql = f"select seats_available from {movies} where movie_index = {choice_movie_index}"
+        mycursor.execute(sql)
+        seats = mycursor.fetchone()[0]
+        if choice_num_tickets > seats: 
+            print("Not enough seats available.\n\n")
+            continue
+        break
+
     while True: #gets venue you want to book
-        try:
-            print("─" * 90)
-            print("Available venues:")
-            movie_venue = {1: "Falter", 2: "Aescamyr", 3: "Enia", 4: "Tintagel", 5: "Lingen", 6: "Elmbow", 7: "Guildingston"}
-            for i in range(1, 8):#prints items in movie_venu dictionary
-                print(i, ":", movie_venue[i])
-            try:
-                venue = int(input("Enter the number of the desired venue: "))
-            except:
-                print("type a number eg: 1 for  Falter")
-                continue
-            venue_user = movie_venue.get(venue)
-            if not venue_user: #if venue is not present in movie_venue, then movie_venue.get(venue) returns none, this none gets stored in venue_user. This is if block is checking if venue user is none
-                print("Invalid venue selection.\n\n")
-                raise Exception
-            print("─" * 90)            
-            
+        if choice_movie_index == "quit" or choice_num_tickets == "quit":
             break
+
+        print("─" * 90)
+        print("Available venues:")
+        movie_venue = {1: "Falter", 2: "Aescamyr", 3: "Enia", 4: "Tintagel", 5: "Lingen", 6: "Elmbow", 7: "Guildingston"}
+        for i in range(1, 8):#prints items in movie_venue dictionary
+            print(i, ":", movie_venue[i])
+        try:
+            choice_venue = input("Enter the number of the desired venue: ")
+            if choice_venue == "quit":
+                break
+            choice_venue = int(choice_venue)
         except:
+            print("type a number eg: 1 for  Falter")
             continue
+        venue_user = movie_venue.get(choice_venue)
+        if not venue_user: #if venue is not present in movie_venue, then movie_venue.get(venue) returns none, this none gets stored in venue_user. This is if block is checking if venue user is none
+            print("Invalid venue selection.\n\n")
+            continue
+        print("─" * 90)            
+        break
 
-    curtime = datetime.now().strftime("%Y-%m-%d %H:%M:%S") #stores current time %Y stands for Year, full version. eg: 2018, %m stands for Month as a number 01-12. eg:20, %d stands for day of the month 01-31. eg: 31, %H stands for Hour 00-23. eg:17,%M stands for minute 00-59. eg: 41, %S stands for second 00-59. eg: 08
-    booking_num = 1
-    for x in bookings[username]:
-        booking_num = booking_num + 1
-    bookings[username].append({'booking' + str(booking_num):'','title':movies[movie_index],'number of tickets':num_tickets,'venue':venue_user,'food':{}})
-    food_cost = 0
     print("─" * 90)
-
     print("─"*90)
     print("Food Menu")
     print("─" * 90)
-    for key, item in food_menu.items():
-        print(f"{key}. {item['item']} - ${item['price']}")
-    while True:
+
+    count_foods = count(food_menu)
+    for z in range(1,count_foods+1):
+        sql = f"select item,price from {food_menu} where item_index = {z}"
+        mycursor.execute(sql)
+        data = mycursor.fetchall()
+        print(f"{z}) item:{data[0][0]},price:{data[0][1]}")
+
+    food_cost = 0
+    while True: #ordering items
+        global quantity
+        if choice_movie_index == "quit" or choice_num_tickets == "quit" or choice_venue == "quit":
+            break
+
         try:
-            order_food = input("Would you like to order food or finish ordering? (yes/no): ").lower()
-            if order_food == "yes":
-                choice = input("Enter the item number to order or 'done' to finish: ")
-                if choice in food_menu:
-                    try:
-                        quantity = int(input("Enter the quantity: "))
-                    except:
-                        print("type a number")
-                    if quantity < 0:
-                        print("quantity cannot be less than 0")
-                        raise Exception
-                    elif quantity > 1000:
-                        print("we can't serve that much")
-                        raise Exception
-                    food_cost += food_menu[choice]['price'] * quantity
-
-                    for x in bookings[username]:
-                        if 'booking' + str(booking_num) in x:     
-                            bookings[username][bookings[username].index(x)].update({'food':{food_menu[choice]['item']:quantity}})
-
-                elif choice == "done":
-                    break
-                else:
-                    print("Invalid item number. Please try again.")
-            elif order_food == "no":
-                print("No food ordered.")
+            choice_item_index = input("type the item number to order or type done to finish ordering: ")
+            if choice_item_index.lower() == "quit" or choice_item_index.lower() == 'done':
                 break
-            else:
-                print("Invalid response. Please enter 'yes' or 'no'.\n\n")
-                raise Exception
+            choice_item_index= int(choice_item_index)
+
+            quantity = input("enter quantity: ")
+            if quantity.lower() == "quit":
+                break
+            quantity = int(quantity)
+            if quantity > 10:
+                print("we can only serve up to 10 foods")
+                continue
+            elif quantity < 0:
+                print("negative not allowed")
+                continue
+        
+            sql = f"select price from {food_menu} where item_index = {choice_item_index}"
+            mycursor.execute(sql)
+            choice_item_cost = mycursor.fetchone()[0]
+            food_cost += choice_item_cost*quantity
         except:
+            print("enter a number")
             continue
+
     while True:
-        try:
+            if choice_movie_index == "quit" or choice_num_tickets == "quit" or choice_venue == "quit" or choice_item_index == "quit":
+                break
+
             print("─" * 90)
             proceed_to_billing = input("Would you like to continue booking this ticket? (yes/no): ").lower()
             if proceed_to_billing == "yes":
-                seats_available[movie_index] -= num_tickets #removes the booked seats from available seats
                 print("─" * 90)
                 print("Billing Details")
                 print("─" * 90)
-                print(f"Number of tickets: {num_tickets}")
-                print(f"Ticket Cost: ${num_tickets * 10}")
+                print(f"Number of tickets: {choice_num_tickets}")
+                print(f"Ticket Cost: ${choice_num_tickets * 10}")
                 print(f"Food Cost: ${food_cost}")
-                total_cost = num_tickets * 10 + food_cost
+                total_cost = choice_num_tickets * 10 + food_cost
                 print(f"Total Cost: ${total_cost}")
                 print("Thank you for booking with WYDEOS!")
                 print("─" * 90)
+                sql = f"select title from {movies} where movie_index = {choice_movie_index}"
+                mycursor.execute(sql)
+                choice_title = mycursor.fetchone()[0]
+                x = datetime.datetime.now()
+                cur_time = f"{x.year}-{x.month}-{x.day}"
+                print(cur_time)
+
+                booking_index = count(bookings) + 1
+                sql = f"insert into {bookings} (user,booking_index,title,number_of_tickets,venue,time,food_cost) values('{username}',{booking_index},'{choice_title}',{choice_num_tickets},'{choice_venue}','{cur_time}',{food_cost})"
+                mycursor.execute(sql)
+                con.commit()
             elif proceed_to_billing == "no":
-                print("ticket canceled.")
+                print("ticket cancelled.")
             else:
-                print("Invalid response. Please enter 'yes' or 'no'.\n\n")
-                raise Exception
+                print("Invalid response, type yes or no.\n\n")
+                continue
+
             break
-        except:
-            continue
 
 def view_user_bookings():
-    print(bookings[username])
+    sql = f"select * from {bookings} where user = '{username}'"
+    mycursor.execute(sql)
+    print(mycursor.fetchall())
             
-def cancel_booking():
-    try:
-        cancel_booking_num = input("enter the booking number which you want to cancel: ")
-        for i in bookings[username]:
-            if 'booking' + str(cancel_booking_num) in i:
-                index_of_i = bookings[username].index(i)
-        print(bookings[username].pop(index_of_i),"was removed")
-    except:
-        print("booking number not found")
-class statuserror(Exception):
-    pass
-class loginerror(Exception):
-    pass
 def login():
     global username
     global password
     while True:
-        try:
-            username = input("Enter your username: ")
-            password = input("Enter your password: ")
-
-            if username in users and password == users[username]["pass"]:
-                print("\nUsername and password present in database.")   
-            else:
-                raise loginerror
-
-            if "status" not in users[username].keys():
-                raise statuserror
-            elif users[username]["status"] == "admin":
-                admin_menu()
-            elif users[username]["status"] == "emp":
-                employee_menu()
-            elif users[username]["status"] == "user":
-                user_menu()
-
-            else:
-                raise statuserror
-        except statuserror:
-            print("You're status in the database has not been set to employee or admin. File a complaint with this error to IT to get this issue sorted.")
-        except loginerror:
-            print("invalid username or password")
-
-class password_mismatch_error(Exception):
-    pass
-
-def register():
-    while True:
-        try:
-            choice = input("do you want to register as user yes or no?: ")
-            if choice == "yes":
-                newusername = input("enter new username: ")
-                if newusername in users:
-                    print("username already present in database")
-                    continue
-                newpassword = input("enter new password: ")
-                confirmnewpassword = input("confirm your password: ")
-                bookings[newusername] = []
-                if confirmnewpassword != newpassword:
-                    raise password_mismatch_error
-                users[newusername] = {"pass":newpassword,"status":"user"}
-                break
-            elif choice == "no":
-                break
-            else:
-                raise loginerror
-        except loginerror:
-            print("please type yes or no")
+        choice = input("do you want to register a new user? (yes/no): ".lower())
+        if choice == 'yes':
+            register()
+        elif choice == 'no':
+            pass
+        else:
+            print("type yes or no")
             continue
-        except password_mismatch_error:
-            print("passwords do not match")
+            
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+        sql = f"select status from {users} where username = '{username}' and pass = '{password}'"
+        mycursor.execute(sql)
+        status = mycursor.fetchone()
+        if status == None:
+            print("username or password is incorrect")
+            continue
+        elif status[0] == "user":
+            user_menu()
+        elif status[0] == "admin":
+            admin_menu()
+        elif status[0] == "emp":
+            employee_menu()
+        else:
+            print(f"your status has been set to {status[0]} which cannot be detected.Most likely your status in the database has been incorrectly set. Contact admin to resolve the issue")
             continue
 
-
-register()
 login()
 
 
