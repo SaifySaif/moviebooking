@@ -7,6 +7,8 @@ This code needs 4 tables in SQL. 1 for storing users, 1 for movies, 1 for food_m
 
 
 table names and database name is customisable, you can change it at the beginning of the code in the variables shown in below picture
+
+
 ![Screenshot from 2024-09-01 20-20-48](https://github.com/user-attachments/assets/276411c5-1a39-4976-86e0-63ec17201d1d)
 
 
