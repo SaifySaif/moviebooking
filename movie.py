@@ -6,7 +6,7 @@ users = "users" #name of table containing users
 movies = "movies" #name of table containing movies
 bookings = "bookings" #name of table containg bookings
 
-con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[",database = db)
+con = m.connect(host = "localhost",user="root",password="",database = db)
 if con.is_connected:
     print("successfully connected")
 else:
