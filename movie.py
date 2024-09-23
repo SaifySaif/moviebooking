@@ -6,19 +6,43 @@ users = "users" #name of table containing users
 movies = "movies" #name of table containing movies
 bookings = "bookings" #name of table containing bookings
 
-con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[",database = db) #tries to connect to database in variable db, make sure to set your password to the db database correctly.
+con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[") #make sure to set your password to mysql correctly.
 if con.is_connected:
-    print("successfully connected")
+    print("successfully connected to mysql (no database selected yet)")
 else:
     print("WARNING!: not connected")
 
 mycursor = con.cursor() #As far as the author knows, this syntax is not needed to execute any mysql.connector commands but the author's school requires the author to use this line.
 
+mycursor.execute(f"show databases like '{db}'") #going to check if database in db variable is present on computer
+data = mycursor.fetchall()
+if data == []:
+    temp = input("database not found, shall I create a database?(type yes): ")
+    if temp.lower() == "yes":
+        mycursor.execute("create database movies")
+        mycursor.execute("use movies")
+        mycursor.execute("create table users (username varchar(100), pass varchar(100), status varchar(100),date_of_joining date,experience varchar(100))")
+        mycursor.execute("create table movies (title varchar(100),genre varchar(100),director varchar(100),seats_available int,movie_index int)")
+        mycursor.execute("create table bookings (user varchar(100),booking_index int,title varchar(100),number_of_tickets int,venue varchar(100), time date,food_cost int)")
+        mycursor.execute("create table food_menu (item_index int, item varchar(100), price int)")
+
+        mycursor.execute("insert into users (username,pass,status,date_of_joining,experience) values ('admin1','adminpass1','admin',null,null)")
+        con.commit()
+        print("I have created a user named admin1 whose password is adminpass1, use this to create your employees and other admins. Do make sure to change adminpass1's details and especially its password for a more secure password.")
+    else:
+        print("you did not type yes, now you will get an error as database is not found")
+con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[",database = db) #tries to connect to database in variable db, make sure to set your password to the db database correctly.
+if con.is_connected:
+    print("successfully connected to database")
+else:
+    print("WARNING!: not connected to database")
+
+mycursor = con.cursor()
+
 def main():
-    global username
-    global password
+    global username, password
     while True:
-        print("")
+        print()
         print("1. Login")
         print("2. Register")
 
