@@ -107,8 +107,11 @@ def employee_menu():
 def view_all_bookings():
     mycursor.execute(f"select * from {bookings}") 
     data = mycursor.fetchall()
-    for a in data:
-        print(f'user:{a[0]} booking_index:{a[1]} title:{a[2]} number_of_tickets:{a[3]} venue:{a[4]} time:{a[5]} food_cost:{a[6]}')
+    if data == []:
+        print("no bookings found")
+    else:
+        for a in data:
+            print(f'user:{a[0]} booking_index:{a[1]} title:{a[2]} number_of_tickets:{a[3]} venue:{a[4]} time:{a[5]} food_cost:{a[6]}')
 
 def manage_movies():
     while True:
@@ -171,7 +174,7 @@ def add_movie():
             choice_seats = input("enter number of seats available: ")
             if choice_seats.lower() == "quit":
                 break
-            choice_seats = int(choice_seats) #sql database stores seats as int datatype in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
+            choice_seats = int(choice_seats) #sql database stores seats as int datatype in movies table. If the user does not provide a number this will throw ValueError and code will go to exception block
         except:
             print("Error: you did not type a number")
             continue
@@ -184,22 +187,29 @@ def add_movie():
         print(f"Movie {choice_title} was added successfully.")
         break
 
-def cancel(table,service,servicetype="int"):
+def cancel(table,service,servicetype="int",check = False): #check is used to check whether retrieved data belongs to user or not, check line 198
        while True:
               if servicetype == "int":
                      try:
                             choice= input(f"Enter the {service} index to remove or type quit: ").lower()
                             if choice == "quit":
                                    break
-                            choice = int(choice) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
+                            choice = int(choice) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError and code will go to exception block
                      except:
                             print("Error: you did not type an integer")
-
-                     mycursor.execute(f"select * from {table} where {service}_index = {choice}")
+                    
+                     mycursor.execute(f"select * from {table} where {service}_index = {choice}") 
                      data = mycursor.fetchall()
                      if data == []:
                             print(f"{service} index not found")
                             continue
+                     
+                     if check == True:
+                         mycursor.execute(f"select user from {table} where {service}_index = {choice}")
+                         data = mycursor.fetchone()[0]
+                         if data != username:
+                            print("choose an index which belongs to you")
+                            break
                      
                      count_value = count(table)
               
@@ -236,7 +246,7 @@ def update_movie():
         choice_movie_index = input("Enter the movie index to update: ")
         if choice_movie_index.lower() == "quit":
             break
-        choice_movie_index = int(choice_movie_index) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
+        choice_movie_index = int(choice_movie_index) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError and code will go to exception block
         choice_title = input("Enter movie title: ")
         if choice_title.lower() == "quit":
             break
@@ -253,7 +263,7 @@ def update_movie():
             choice_seats = input("enter number of seats available: ")
             if choice_seats.lower() == "quit":
                 break
-            choice_seats = int(choice_seats) #sql database stores seats as int datatype in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
+            choice_seats = int(choice_seats) #sql database stores seats as int datatype in movies table. If the user does not provide a number this will throw ValueError and code will go to exception block
         except:
             print("Error: you did not type a number")
             continue
@@ -289,10 +299,13 @@ def admin_menu():
 
 def view_all_users():
     count_users = count(users)
-    for z in range(0,count_users):
-       mycursor.execute(f"select * from {users}")
-       data = mycursor.fetchall()
-       print(f"{z+1}) username: {data[z][0]}, pass:{data[z][1]},status:{data[z][2]},date_of_joining:{data[z][3]}, experience:{data[z][4]}")
+    mycursor.execute(f"select * from {users}")
+    data = mycursor.fetchall()
+    if data == []:
+        print("no users found")
+    else:
+        for z in range(0,count_users):
+            print(f"{z+1}) username: {data[z][0]}, pass:{data[z][1]},status:{data[z][2]},date_of_joining:{data[z][3]}, experience:{data[z][4]}")
 
 def add_employee():
     while True:
@@ -370,7 +383,7 @@ def user_menu():
         elif choice == "3":
             view_user_bookings()
         elif choice == "4":
-            cancel(bookings,'booking')
+            cancel(bookings,'booking',"int",True)
         elif choice == "5":
             print("Logged out successfully.")
             break
@@ -457,6 +470,7 @@ def book_tickets():
             print(f"{z}) item:{data[0][0]},price:{data[0][1]}")
         break
 
+    print("")
     food_cost = 0
     while True: #ordering items
         global quantity
@@ -535,6 +549,9 @@ def book_tickets():
 def view_user_bookings():
     mycursor.execute(f"select * from {bookings} where user = '{username}'")
     data = mycursor.fetchall()
-    for z in data:
-        print(f"user:{z[0]} booking_index:{z[1]} title:{z[2]} number_of_tickets:{z[3]} venue:{z[4]} time:{z[5]} food_cost:{z[6]}")
+    if data == []:
+        print("no bookings found")
+    else:
+        for z in data:
+            print(f"user:{z[0]} booking_index:{z[1]} title:{z[2]} number_of_tickets:{z[3]} venue:{z[4]} time:{z[5]} food_cost:{z[6]}")
 main()
