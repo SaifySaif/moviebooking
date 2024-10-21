@@ -6,7 +6,7 @@ users = "users" #name of table containing users
 movies = "movies" #name of table containing movies
 bookings = "bookings" #name of table containing bookings
 
-con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[") #make sure to set your password to mysql correctly.
+con = m.connect(host = "localhost",user="root",password="") #make sure to set your password to mysql correctly.
 if con.is_connected:
     print("successfully connected to mysql (no database selected yet)")
 else:
