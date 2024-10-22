@@ -1,4 +1,4 @@
-import datetime #used to print current time at line 241
+import datetime #used to print current time at line 571
 import mysql.connector as m
 db = "movies" #name of database
 food_menu = "food_menu" #name of table containing food menu
@@ -6,7 +6,7 @@ users = "users" #name of table containing users
 movies = "movies" #name of table containing movies
 bookings = "bookings" #name of table containing bookings
 
-con = m.connect(host = "localhost",user="root",password="") #make sure to set your password to mysql correctly.
+con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[") 
 if con.is_connected:
     print("successfully connected to mysql (no database selected yet)")
 else:
@@ -31,11 +31,12 @@ if data == []:
         print("I have created a user named admin1 whose password is adminpass1, use this to create your employees and other admins. Do make sure to change adminpass1's details and especially its password for a more secure password.")
     else:
         print("you did not type yes, now you will get an error as database is not found")
+
 con = m.connect(host = "localhost",user="root",password="@Te3{oHgq$#B|h~pm[",database = db) #tries to connect to database in variable db, make sure to set your password to the db database correctly.
 if con.is_connected:
     print("successfully connected to database")
 else:
-    print("WARNING!: not connected to database")
+    print("WARNING!: not connected")
 
 mycursor = con.cursor()
 
@@ -105,7 +106,7 @@ def register():
             print("passwords do no match")
             continue
         
-        mycursor.execute(f"insert into {users} (username,pass,status,date_of_joining,experience) values('{choice_username}','{password}','user','{None}','{None}')" )
+        mycursor.execute(f"insert into {users} (username,pass,status,date_of_joining,experience) values('{choice_username}','{password}','user', (Null), 'Null')" )
         con.commit() #Makes sure the inserted row due to the code on line 73 is stored permanently in sql, in users table. Without this line the new user data will not be permanently stored in users table.
         print(f"Sucessfully registered {choice_username}")
         break
@@ -116,7 +117,8 @@ def employee_menu():
         print("─" * 90)
         print("1. View All Bookings")
         print("2. Manage Movies")
-        print("3. Log Out")
+        print("3. Manage foods")
+        print("4. Log Out")
         print("─" * 90)
         choice = input("Enter your choice (1-3): ")
         if choice == "1":
@@ -124,6 +126,8 @@ def employee_menu():
         elif choice == "2":
             manage_movies()
         elif choice == "3":
+            manage_foods()
+        elif choice == "4":
             break
         else:
             print("Invalid choice. Please try again.")
@@ -165,11 +169,14 @@ def display_movies():
     print("─" * 90)
     print("Welcome to the WYDEOS! A movie booking website")
     print("─" * 90)
-    count_movies = count(movies) #returns cardinality (number of rows) of movies table
-    for z in range(0,count_movies):
-       mycursor.execute(f"select * from {movies} having movie_index = {z+1}")
-       data = mycursor.fetchall()
-       print(f"{z+1}) title:{data[0][0]}, genre:{data[0][1]},director:{data[0][2]},seats_available:{data[0][3]}")
+
+    mycursor.execute(f"select * from {movies}")
+    data = mycursor.fetchall()
+    if data == []:
+        print("no movies found")
+    else:
+        for a in data:
+            print(f'title:{a[0]} genre:{a[1]} director:{a[2]} seats_available:{a[3]} movie_index:{a[4]}')
 
 def count(database):
     mycursor.execute(f"select count(*) from {database}")
@@ -270,7 +277,12 @@ def update_movie():
         choice_movie_index = input("Enter the movie index to update: ")
         if choice_movie_index.lower() == "quit":
             break
-        choice_movie_index = int(choice_movie_index) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError and code will go to exception block
+        try:
+            choice_movie_index = int(choice_movie_index) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError and code will go to exception block
+        except:
+            print("Error: type an integer")
+            continue
+        
         choice_title = input("Enter movie title: ")
         if choice_title.lower() == "quit":
             break
@@ -352,9 +364,13 @@ def add_employee():
         choice_experience = input("Enter experience: ")
         if choice_experience.lower() == "quit":
             break
+        
+        try:
+            mycursor.execute(f"insert into {users} (username,pass,status,date_of_joining,experience) values('{choice_username}', '{choice_password}', '{choice_status}', '{choice_date_of_joining}', '{choice_experience}')")
+        except m.DataError: #if date is not entered in YYY-MM-DD format then mysql.connector.DataError is thrown, remember I imported mysql.connector as m so the exception is called m.DataError instead of mysql.connector.DataError
+            print("Error: Enter date in YYYY-MM-DD format")
+            continue
 
-        mycursor.execute(f"insert into {users} (username,pass,status,date_of_joining,experience) values('{choice_username}', '{choice_password}', '{choice_status}', '{choice_date_of_joining}', '{choice_experience}')"
-)
         con.commit()
         print(f"{choice_username} was added successfully to {users} database")
         break
@@ -363,6 +379,11 @@ def edit_employee():
         old_username = input("enter old username: ")
         if old_username.lower() == "quit":
             break
+        mycursor.execute(f"select * from {users} where username = '{old_username}'")
+        data = mycursor.fetchall()
+        if data == []:
+            print("Error: User not found")
+            continue
 
         choice_username = input("Enter username : ")
         if choice_username.lower() == "quit":
@@ -376,6 +397,7 @@ def edit_employee():
         if choice_status.lower() == "quit":
             break
 
+
         choice_date_of_joining= input("Enter date of join: ")
         if choice_date_of_joining.lower() == "quit":
             break
@@ -383,11 +405,15 @@ def edit_employee():
         choice_experience = input("Enter experience: ")
         if choice_experience.lower() == "quit":
             break
+        
+        try:
+            mycursor.execute(f"update {users} set username = '{choice_username}', pass = '{choice_password}', status = '{choice_status}', date_of_joining = '{choice_date_of_joining}', experience = '{choice_date_of_joining}' where username = '{old_username}'")
+        except m.DataError:
+            print("Error: Enter date in YYYY-MM-DD format")
+            continue
 
-        mycursor.execute(f"update {users} set username = '{choice_username}', pass = '{choice_password}', status = '{choice_status}', date_of_joining = '{choice_date_of_joining}', experience = '{choice_date_of_joining}' where username = '{old_username}'"
-)
         con.commit()
-        print(f"{choice_username} was edited")
+        print(f"{old_username} was edited")
         break
 
 def user_menu():
@@ -425,7 +451,7 @@ def book_tickets():
                 break
             choice_movie_index = int(choice_movie_index) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
         except:
-            print("type an integer eg: type 1 for 1st movie\n\n")
+            print("Error: type an integer eg: type 1 for 1st movie\n\n")
             continue
         count_movies = count(movies)
         if choice_movie_index < 0 or choice_movie_index > count_movies:
@@ -474,7 +500,7 @@ def book_tickets():
                 break
             choice_venue = int(choice_venue)
         except:
-            print("type a number eg: 1 for  Falter")
+            print("Error: type a number eg: 1 for  Falter")
             continue
         venue_user = movie_venue.get(choice_venue)
         if not venue_user: #if venue is not present in movie_venue, then movie_venue.get(venue) returns none, this none gets stored in venue_user. This is if block is checking if venue user is none
@@ -526,7 +552,7 @@ def book_tickets():
             choice_item_cost = mycursor.fetchone()[0]
             food_cost += choice_item_cost*quantity
         except:
-            print("enter a number")
+            print("Error: enter a number")
             continue
 
     while True:
