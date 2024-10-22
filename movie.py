@@ -59,12 +59,12 @@ def main():
                     print("quitting....")
                     break
 
-                mycursor.execute(f"select status from {users} where username = '{username}' and pass = '{password}'") #the execute method tries to execute code in brackets in sql. SO this tries to select values from status column from users where username = username and pass = password
+                mycursor.execute(f"select status from {users} where username = '{username}' and pass = '{password}'") #the execute method tries to execute code in brackets in sql. So this tries to select values from status column from users where username = username and pass = password
                 status = mycursor.fetchone() #Should fetch a tuple containing 1 value which is status of the username. If no username and password is present in the database which matches the inputted username and password then None is returned.
                 if status == None:
                     print("username or password is incorrect")
                     continue
-                elif status[0] == "user": #status[0] is the status of inputted username. Check comment on line 34 for understanding what status variable is 
+                elif status[0] == "user": #status[0] is the status of inputted username. 
                     user_menu() 
                 elif status[0] == "admin":
                     admin_menu() 
@@ -88,7 +88,7 @@ def register():
         if choice_username == "quit":
             print("quitting......")
             break
-        mycursor.execute(f"select * from {users} where username =  '{choice_username}'") #trying to fetch the inputted choice_username from users table, this is used in code from line 56 to 59 to check if the choice_username is already present in users table, if so then that is not allowed as it can create problems retrieving data from same named entries. So I will force the user to choose another username instead.
+        mycursor.execute(f"select * from {users} where username =  '{choice_username}'") #trying to fetch the inputted choice_username from users table, if present then that is not allowed as it can create problems retrieving data from same named entries. So I will force the user to choose another username instead.
         data = mycursor.fetchall()
         if data != []:
             print("username taken")
@@ -107,7 +107,7 @@ def register():
             continue
         
         mycursor.execute(f"insert into {users} (username,pass,status,date_of_joining,experience) values('{choice_username}','{password}','user', (Null), 'Null')" )
-        con.commit() #Makes sure the inserted row due to the code on line 73 is stored permanently in sql, in users table. Without this line the new user data will not be permanently stored in users table.
+        con.commit() #Makes sure the inserted row due to the code on line 109 is stored permanently in sql, in users table. Without this line the new user data will not be permanently stored in users table.
         print(f"Sucessfully registered {choice_username}")
         break
 
@@ -117,8 +117,7 @@ def employee_menu():
         print("─" * 90)
         print("1. View All Bookings")
         print("2. Manage Movies")
-        print("3. Manage foods")
-        print("4. Log Out")
+        print("3. Log Out")
         print("─" * 90)
         choice = input("Enter your choice (1-3): ")
         if choice == "1":
@@ -126,8 +125,6 @@ def employee_menu():
         elif choice == "2":
             manage_movies()
         elif choice == "3":
-            manage_foods()
-        elif choice == "4":
             break
         else:
             print("Invalid choice. Please try again.")
@@ -218,14 +215,14 @@ def add_movie():
         print(f"Movie {choice_title} was added successfully.")
         break
 
-def cancel(table,service,servicetype="int",check = False): #check is used to check whether retrieved data belongs to user or not, check line 198
+def cancel(table,service,servicetype="int",check = False): #check is used to check whether retrieved data belongs to user or not, used in line 433
        while True:
               if servicetype == "int":
                      try:
                             choice= input(f"Enter the {service} index to remove or type quit: ").lower()
                             if choice == "quit":
                                    break
-                            choice = int(choice) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError and code will go to exception block
+                            choice = int(choice) 
                      except:
                             print("Error: you did not type an integer")
                     
@@ -278,7 +275,7 @@ def update_movie():
         if choice_movie_index.lower() == "quit":
             break
         try:
-            choice_movie_index = int(choice_movie_index) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError and code will go to exception block
+            choice_movie_index = int(choice_movie_index) 
         except:
             print("Error: type an integer")
             continue
@@ -299,7 +296,7 @@ def update_movie():
             choice_seats = input("enter number of seats available: ")
             if choice_seats.lower() == "quit":
                 break
-            choice_seats = int(choice_seats) #sql database stores seats as int datatype in movies table. If the user does not provide a number this will throw ValueError and code will go to exception block
+            choice_seats = int(choice_seats) 
         except:
             print("Error: you did not type a number")
             continue
@@ -449,7 +446,7 @@ def book_tickets():
             if choice_movie_index == "quit":
                 quit_check = True
                 break
-            choice_movie_index = int(choice_movie_index) #sql database stores movie index as int in movies table. If the user does not provide a number this will throw ValueError: invalid literal for int() with base 10:
+            choice_movie_index = int(choice_movie_index) 
         except:
             print("Error: type an integer eg: type 1 for 1st movie\n\n")
             continue
