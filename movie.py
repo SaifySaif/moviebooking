@@ -1,4 +1,4 @@
-import datetime #used to print current time at line 571
+import datetime #used to print current time at line 574
 import mysql.connector as m
 db = "movies" #name of database
 food_menu = "food_menu" #name of table containing food menu
